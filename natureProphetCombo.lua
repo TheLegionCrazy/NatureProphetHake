@@ -5,14 +5,15 @@ prophet.optionColdSnap = Menu.AddKeyOption({ "Hero Specific", "Nature's Prophet"
 
 prophet.nextTick = 0
 prophet.usingNow = false
-prophet.enemy = nill
+prophet.enemy = nil
+prophet.enemyLocation = nil;
 
 function prophet.OnUpdate()
     if not Menu.IsEnabled(prophet.optionEnable) then
         return
     end
     local myHero = Heroes.GetLocal()
-    if myHero == nill then
+    if myHero == nil then
         return
     end
 
@@ -31,10 +32,12 @@ function prophet.OnUpdate()
             return
         end
 
-        Ability.CastPosition(sprout, Entity.GetAbsOrigin(enemy))
+        prophet.enemyLocation = Entity.GetAbsOrigin(enemy)
         usingNow = true
         nextTick = os.clock() + 3
         prophet.enemy = enemy
+
+        Ability.CastPosition(sprout, enemyLocation)
     end
 
     if os.clock() < prophet.nextTick then
@@ -44,10 +47,11 @@ function prophet.OnUpdate()
         return
     end
 
-    Ability.CastPosition(naturesCall, Entity.GetAbsOrigin(prophet.enemy))
+    Ability.CastPosition(naturesCall, EenemyLocation)
 
     usingNow = false
-    enemy = nill
+    enemy = nil
+    enemyLocation = nil
 end
 
 
