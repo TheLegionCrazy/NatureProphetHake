@@ -3,8 +3,7 @@ local prophet = {}
 prophet.optionEnable = Menu.AddOption({ "Hero Specific", "Nature's Prophet" }, "Enabled", "Enabled?")
 prophet.optionColdSnap = Menu.AddKeyOption({ "Hero Specific", "Nature's Prophet", }, "Combo key", Enum.ButtonCode.KEY_M)
 
-prophet.nextTick = 0
-prophet.usingNow = false
+local slow = 0
 prophet.enemy = nil
 prophet.enemyLocation = nil;
 
@@ -33,26 +32,39 @@ function prophet.OnUpdate()
         end
 
         prophet.enemyLocation = Entity.GetAbsOrigin(enemy)
-        usingNow = true
-        nextTick = os.clock() + 3
         prophet.enemy = enemy
 
-        Ability.CastPosition(sprout, enemyLocation)
+        comboProphet(myHero, myMana)
+    else
+        enemy = nil
+        enemyLocation = nil
+        slow = 0
     end
-
-    if os.clock() < prophet.nextTick then
-        return
-    end
-    if not usingNow then
-        return
-    end
-
-    Ability.CastPosition(naturesCall, EenemyLocation)
-
-    usingNow = false
-    enemy = nil
-    enemyLocation = nil
 end
 
+function comboProphet(myHero, myMana)
+
+    local sprout = NPC.GetAbilityByIndex(myHero, 0)
+    local naturesCall = NPC.GetAbilityByIndex(myHero, 2)
+
+    local enemy = prophet.enemy
+    local pos_enemy = prophet.enemyLocation
+
+    if sprout ~= nil and GameRules.GetGameTime() >= slow then
+        if Ability.IsCastable(sprout, myMana) then
+            Ability.CastPosition(sprout, pos_enemy)
+            slow = GameRules.GetGameTime() + 2.555 + NetChannel.GetAvgLatency(Enum.Flow.FLOW_OUTGOING)
+        end
+    end
+    if naturesCall ~= nil and GameRules.GetGameTime() >= slow then
+        if Ability.IsCastable(naturesCall, myMana) then
+            Ability.CastPosition(naturesCall, pos_enemy)
+            slow = GameRules.GetGameTime() + 1.555 + NetChannel.GetAvgLatency(Enum.Flow.FLOW_OUTGOING)
+        end
+    end
+    if GameRules.GetGameTime() >= slow then
+        Player.PrepareUnitOrders(Players.GetLocal(), 4, enemy, Vector(0, 0, 0), enemy, Enum.PlayerOrderIssuer.DOTA_ORDER_ISSUER_PASSED_UNIT_ONLY, myHero)
+    end
+end
 
 return prophet
