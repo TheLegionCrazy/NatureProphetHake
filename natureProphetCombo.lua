@@ -20,8 +20,8 @@ function prophet.OnUpdate()
         return
     end
 
-    local sprout = NPC.GetAbilityByIndex(myHero, 0)
-    local naturesCall = NPC.GetAbilityByIndex(myHero, 2)
+    local sprout = NPC.GetAbilityByIndex(myHero, 1)
+    local naturesCall = NPC.GetAbilityByIndex(myHero, 3)
     local myMana = NPC.GetMana(myHero)
 
     if Menu.IsKeyDownOnce(prophet.optionColdSnap) then
